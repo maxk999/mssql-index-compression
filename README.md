@@ -27,3 +27,7 @@ EXECUTE dbo.IndexCompression
 Preview without changes: `@Execute = 'N'`. All parameters are documented in the header of the procedure.
 
 Run `compression_review.sql` occasionally, for example after month-end and at least two weeks after a compression rollout.
+
+## License
+
+[MIT](LICENSE)
