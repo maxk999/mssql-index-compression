@@ -7,7 +7,7 @@ Background and discussion: [olahallengren/sql-server-maintenance-solution#1176](
 | File | What it does |
 |---|---|
 | `IndexCompression.sql` | Stored procedure `dbo.IndexCompression`. Sets `DATA_COMPRESSION` on partitions that are still uncompressed. `@DataCompression = 'AUTO'` decides PAGE, ROW or NONE for each index from the estimated savings and the update share; `'PAGE'` / `'ROW'` force a value. Heaps are included. Commands go through `dbo.CommandExecute` and are logged to `dbo.CommandLog`. |
-| `compression_review.sql` | Read-only report for partitions that are already compressed: PAGE → ROW and ROW → PAGE candidates. It prints the `sp_estimate_data_compression_savings` call for each flagged partition and changes nothing. |
+| `compression_review.sql` | Stored procedure `dbo.CompressionReview`. Read-only review of partitions that are already compressed: PAGE → ROW and ROW → PAGE candidates, with the `sp_estimate_data_compression_savings` call for each. With `@LogToTable = 'Y'` it keeps a history and marks a suggestion Confirmed only when it repeats in consecutive runs, so seasonal workloads do not flip decisions back and forth. Nothing is rebuilt. |
 
 ## Usage
 
@@ -26,7 +26,13 @@ EXECUTE dbo.IndexCompression
 
 Preview without changes: `@Execute = 'N'`. All parameters are documented in the header of the procedure.
 
-Run `compression_review.sql` occasionally, for example after month-end and at least two weeks after a compression rollout.
+Install `compression_review.sql` next to it and schedule a monthly step after month-end:
+
+```sql
+EXECUTE dbo.CompressionReview @Databases = 'USER_DATABASES', @LogToTable = 'Y';
+```
+
+Act only on rows with `Confirmed = 1` (see `dbo.CompressionReviewLog`), after running the estimate from the `Estimate` column.
 
 ## License
 
