@@ -1,0 +1,14 @@
+# Згенеровано install.sh із security-scan. Перегенерувати: bash install.sh --force
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 3
+    labels: ["security", "ci"]
+    commit-message:
+      prefix: "security"
+    groups:
+      actions:
+        patterns: ["*"]

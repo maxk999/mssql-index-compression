@@ -1,0 +1,40 @@
+name: security
+
+on:
+  schedule:
+    - cron: "29 6 * * *"     # щодня (~09:29 за Києвом взимку)
+  push:
+    branches: [main, master]
+    paths:
+      - "**/requirements*.txt"
+      - "**/pyproject.toml"
+      - "**/poetry.lock"
+      - "**/uv.lock"
+      - "**/Pipfile.lock"
+      - "**/package.json"
+      - "**/package-lock.json"
+      - "**/yarn.lock"
+      - "**/pnpm-lock.yaml"
+      - "**/*.csproj"
+      - "**/packages.lock.json"
+      - "**/packages.config"
+      - "**/Dockerfile*"
+      - "**/*compose*.y*ml"
+      - ".github/workflows/**"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    uses: maxk999/security-scan/.github/workflows/scan.yml@main
+    with:
+      min-severity: MEDIUM
+      only-fixable: false
+      build-images: true
+      fail-on: none
+    secrets:
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
